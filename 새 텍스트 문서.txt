@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCOM - 신품/중고 판매</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* 관리자 패널 */
+        .admin-panel {
+            background: #2a5298;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .admin-panel button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .admin-panel button:hover {
+            background: #ee5a52;
+        }
+
+        /* 편집 모드 */
+        .edit-mode {
+            background: #fffacd;
+            padding: 10px;
+            border: 2px solid #ff6b6b;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .edit-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .edit-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1e3c72;
+        }
+
+        .edit-section input,
+        .edit-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .edit-section textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .edit-btn:hover {
+            background: #45a049;
+        }
+
+        .cancel-btn {
+            background: #999;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            background: #777;
+        }
+
+        /* 헤더 */
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        /* 히어로 섹션 */
+        .hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero.editable {
+            cursor: pointer;
+        }
+
+        .hero.editable:hover {
+            background: linear-gradient(135deg, #0d1f3f 0%, #1a3d6f 100%);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px;
+            background: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #ee5a52;
+        }
+
+        /* 서비스 섹션 */
+        .services {
+            padding: 60px 20px;
+            background: #f9f9f9;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+            color: #1e3c72;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .section-title:hover::after {
+            content: " ✏️";
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card h3 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 제품 섹션 */
+        .products {
+            padding: 60px 20px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .product-item {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #1e3c72;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-item:hover {
+            background: #e6ecff;
+        }
+
+        .product-item p {
+            font-size: 16px;
+            color: #1e3c72;
+            font-weight: 500;
+        }
+
+        /* 연락처 섹션 */
+        .contact {
+            background: #1e3c72;
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .contact h2:hover::after {
+            content: " ✏️";
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .info-box:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .info-box h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .info-box p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .info-box a {
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+
+        /* 푸터 */
+        footer {
+            background: #0f1f3a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        footer:hover::after {
+            content: " ✏️";
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav a {
+                margin-left: 15px;
+                font-size: 12px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 관리자 패널 -->
+    <div class="admin-panel">
+        🔧 관리자 모드 | 
+        <button onclick="toggleEditMode()">✏️ 편집 시작</button>
+        <button onclick="saveChanges()">💾 저장</button>
+        <button onclick="resetChanges()">↩️ 초기화</button>
+    </div>
+
+    <!-- 헤더 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="editLogo()">🔷 DOCOM</div>
+                <nav>
+                    <a href="#services">서비스</a>
+                    <a href="#products">제품</a>
+                    <a href="#contact">연락처</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero" id="heroSection" onclick="editHero()">
+        <div class="container">
+            <h1 id="heroTitle">신품 / 중고 판매</h1>
+            <p id="heroDesc">컴퓨터, 노트북, 모니터 등 최고의 제품을 저렴하게</p>
+            <a href="tel:031-544-9939" class="btn">📞 전화주문</a>
+            <a href="#contact" class="btn" style="background: #2a5298;">문의하기</a>
+        </div>
+    </section>
+
+    <!-- 서비스 섹션 -->
+    <section class="services" id="services">
+        <div class="container">
+            <h2 class="section-title" onclick="editServiceTitle()">주요 서비스</h2>
+            <div class="service-grid" id="serviceGrid">
+                <div class="service-card" onclick="editService(this)">
+                    <h3>🛒 신품 판매</h3>
+                    <p>최신 제품을 경쟁력 있는 가격으로 판매합니다</p>
+                </div>
+                <div class="service-card" onclick="editService(this)">
+                    <h3>💰 중고 판매</h3>
+                    <p>검증된 중고 제품을 합리적인 가격에 제공합니다</p>
+                </div>
+                <div class="service-card" onclick="editService(this)">
+                    <h3>🔧 수리 및 업그레이드</h3>
+                    <p>전문 기술로 제품을 수리하고 업그레이드합니다</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 제품 섹션 -->
+    <section class="products" id="products">
+        <div class="container">
+            <h2 class="section-title" onclick="editProductTitle()">취급 품목</h2>
+            <div class="product-grid" id="productGrid">
+                <div class="product-item" onclick="editProduct(this)"><p>💻 컴퓨터</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>📔 노트북</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>🖥️ 모니터</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>⌨️ 주변기기</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>🖱️ 마우스/키보드</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>📱 태블릿</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>🎮 올인원 PC</p></div>
+                <div class="product-item" onclick="editProduct(this)"><p>💾 액세서리</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 연락처 섹션 -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 onclick="editContactTitle()">📍 매장 방문 / 연락처</h2>
+            <div class="contact-info">
+                <div class="info-box" onclick="editPhone1()">
+                    <h3>📞 매장 전화</h3>
+                    <p><a href="tel:031-544-9939" id="phone1">031-544-9939</a></p>
+                </div>
+                <div class="info-box" onclick="editPhone2()">
+                    <h3>📱 휴대폰 문의</h3>
+                    <p><a href="tel:010-6205-6584" id="phone2">010-6205-6584</a></p>
+                </div>
+                <div class="info-box" onclick="editAddress()">
+                    <h3>📍 위치</h3>
+                    <p id="address">경기도 포천시 가산면<br>가산로 103</p>
+                </div>
+                <div class="info-box" onclick="editHours()">
+                    <h3>🕐 영업시간</h3>
+                    <p id="hours">평일: 09:00~19:00<br>토요일: 09:00~17:00<br>일요일: 휴무</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer onclick="editFooter()">
+        <p id="footerText">&copy; 2026 DOCOM. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let isEditMode = false;
+
+        // 편집 모드 전환
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            alert(isEditMode ? '✏️ 편집 모드 활성화!\n항목을 클릭하여 수정하세요.' : '보기 모드로 전환되었습니다.');
+        }
+
+        // 히어로 섹션 수정
+        function editHero() {
+            if (!isEditMode) return;
+            const title = prompt('제목 입력:', document.getElementById('heroTitle').textContent);
+            if (title) document.getElementById('heroTitle').textContent = title;
+            
+            const desc = prompt('설명 입력:', document.getElementById('heroDesc').textContent);
+            if (desc) document.getElementById('heroDesc').textContent = desc;
+        }
+
+        // 서비스 제목 수정
+        function editServiceTitle() {
+            if (!isEditMode) return;
+            const title = prompt('서비스 섹션 제목:', '주요 서비스');
+            if (title) document.querySelectorAll('.services .section-title')[0].textContent = title;
+        }
+
+        // 서비스 카드 수정
+        function editService(element) {
+            if (!isEditMode) return;
+            const h3 = element.querySelector('h3').textContent;
+            const p = element.querySelector('p').textContent;
+            
+            const newH3 = prompt('제목 입력:', h3);
+            if (newH3) element.querySelector('h3').textContent = newH3;
+            
+            const newP = prompt('설명 입력:', p);
+            if (newP) element.querySelector('p').textContent = newP;
+        }
+
+        // 제품 제목 수정
+        function editProductTitle() {
+            if (!isEditMode) return;
+            const title = prompt('제품 섹션 제목:', '취급 품목');
+            if (title) document.querySelectorAll('.products .section-title')[0].textContent = title;
+        }
+
+        // 제품 항목 수정
+        function editProduct(element) {
+            if (!isEditMode) return;
+            const text = element.querySelector('p').textContent;
+            const newText = prompt('제품명 입력:', text);
+            if (newText) element.querySelector('p').textContent = newText;
+        }
+
+        // 연락처 수정
+        function editContactTitle() {
+            if (!isEditMode) return;
+            const title = prompt('연락처 섹션 제목:', '📍 매장 방문 / 연락처');
+            if (title) document.querySelector('.contact h2').textContent = title;
+        }
+
+        function editPhone1() {
+            if (!isEditMode) return;
+            const phone = prompt('매장 전화 입력:', document.getElementById('phone1').textContent);
+            if (phone) {
+                document.getElementById('phone1').textContent = phone;
+                document.getElementById('phone1').href = 'tel:' + phone;
+            }
+        }
+
+        function editPhone2() {
+            if (!isEditMode) return;
+            const phone = prompt('휴대폰 입력:', document.getElementById('phone2').textContent);
+            if (phone) {
+                document.getElementById('phone2').textContent = phone;
+                document.getElementById('phone2').href = 'tel:' + phone;
+            }
+        }
+
+        function editAddress() {
+            if (!isEditMode) return;
+            const addr = prompt('주소 입력:', document.getElementById('address').textContent.replace('<br>', ', '));
+            if (addr) document.getElementById('address').innerHTML = addr.replace(', ', '<br>');
+        }
+
+        function editHours() {
+            if (!isEditMode) return;
+            const hours = prompt('영업시간 입력 (줄바꿈은 \\n 사용):', document.getElementById('hours').textContent.replace('<br>', '\\n'));
+            if (hours) document.getElementById('hours').innerHTML = hours.replace(/\\n/g, '<br>');
+        }
+
+        function editFooter() {
+            if (!isEditMode) return;
+            const footer = prompt('푸터 텍스트:', document.getElementById('footerText').textContent);
+            if (footer) document.getElementById('footerText').textContent = footer;
+        }
+
+        // 저장
+        function saveChanges() {
+            localStorage.setItem('docomData', JSON.stringify({
+                heroTitle: document.getElementById('heroTitle').textContent,
+                heroDesc: document.getElementById('heroDesc').textContent,
+                phone1: document.getElementById('phone1').textContent,
+                phone2: document.getElementById('phone2').textContent,
+                address: document.getElementById('address').innerHTML,
+                hours: document.getElementById('hours').innerHTML,
+                footerText: document.getElementById('footerText').textContent
+            }));
+            alert('💾 변경사항이 저장되었습니다!');
+        }
+
+        // 초기화
+        function resetChanges() {
+            if (confirm('정말 초기 상태로 돌아가시겠습니까?')) {
+                localStorage.removeItem('docomData');
+                location.reload();
+            }
+        }
+
+        // 페이지 로드 시 저장된 데이터 복원
+        window.onload = function() {
+            const data = localStorage.getItem('docomData');
+            if (data) {
+                const parsed = JSON.parse(data);
+                document.getElementById('heroTitle').textContent = parsed.heroTitle;
+                document.getElementById('heroDesc').textContent = parsed.heroDesc;
+                document.getElementById('phone1').textContent = parsed.phone1;
+                document.getElementById('phone2').textContent = parsed.phone2;
+                document.getElementById('address').innerHTML = parsed.address;
+                document.getElementById('hours').innerHTML = parsed.hours;
+                document.getElementById('footerText').textContent = parsed.footerText;
+            }
+        }
+    </script>
+</body>
+</html>
